@@ -1,0 +1,3 @@
+client_id=[insert_your_client_id]
+client_secret=[insert_your_client_secret]
+redirect_uri=[insert_your_redirect_uri]
