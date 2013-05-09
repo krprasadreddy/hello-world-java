@@ -23,6 +23,7 @@
 </head>
 
 <body>
+	<div class="container">
 	<div class="navbar navbar-inverse navbar-fixed-top">
 		<div class="navbar-inner">
 			<div class="container">
@@ -41,15 +42,14 @@
 		</div>
 	</div>
 
-	<div class="container">
-		<br/>
-		<img src="<c:url value="resources/logo.png" />" />
-		<h1>Get started with your Smartsheet Hello World</h1>
-		<p>
-			This is a template for a Smartsheet Web Application. To access your
-			sheets, please allow access first. 
-			<a href="login"class="btn btn-primary btn-large"><i class="icon-white icon-hand-right"></i>Login</a>
-		</p>
+	<br/>
+	<img src="<c:url value="resources/logo.png" />" />
+	<h1>Get started with your Smartsheet Hello World</h1>
+	<p>
+		This is a template for a Smartsheet Web Application. To access your
+		sheets, please allow access first. 
+		<a href="login"class="btn btn-primary btn-large"><i class="icon-white icon-hand-right"></i>Login</a>
+	</p>
 
 	</div>
 	<!-- /container -->

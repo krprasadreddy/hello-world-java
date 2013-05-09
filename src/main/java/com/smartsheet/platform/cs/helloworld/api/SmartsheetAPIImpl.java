@@ -64,16 +64,12 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 			restTemplate.setDoAutoRefresh(false);
 			// Send the request
 			AccessToken accessToken = restTemplate.postForObject(SmartsheetProperties.getTokenUrl(), map, AccessToken.class);
-			if (accessToken == null) {
-				throw new SmartsheetException(restTemplate.getError().getMessage());
-			} else {
-				accessToken.setId(UUID.randomUUID().toString().replace("-", ""));
-				accessToken.setExpires(new Date(System.currentTimeMillis() + (accessToken.getExpiresIn() * 1000)));
-				accessToken.setProvider(SMARTSHEET_PROVIDER);
-				//Would prefer not to have a DB call here, but leaving it for simplicity's sake.
-				tokenService.saveToken(accessToken);
-				return accessToken;
-			}
+			accessToken.setId(UUID.randomUUID().toString().replace("-", ""));
+			accessToken.setExpires(new Date(System.currentTimeMillis() + (accessToken.getExpiresIn() * 1000)));
+			accessToken.setProvider(SMARTSHEET_PROVIDER);
+			//Would prefer not to have a DB call here, but leaving it for simplicity's sake.
+			tokenService.saveToken(accessToken);
+			return accessToken;
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e.getMessage());
 		} catch (UnsupportedEncodingException e) {

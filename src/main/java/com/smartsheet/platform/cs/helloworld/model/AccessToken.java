@@ -29,6 +29,7 @@ public class AccessToken {
 	String refreshToken;
 	
 	@JsonProperty("expires_in")
+	@Transient
 	Long expiresIn;
 	
 	@JsonProperty("token_type")

@@ -25,6 +25,7 @@
 </head>
 
 <body>
+	<div class="container">
 	<div class="navbar navbar-inverse navbar-fixed-top">
 		<div class="navbar-inner">
 			<div class="container">
@@ -50,19 +51,19 @@
 		</div>
 	</div>
 
-	<div class="container">
 
-		<img src="<c:url value="resources/logo.png" />" />
+	<br/>
+	<img src="<c:url value="resources/logo.png" />" />
 
-		<h2>Sheet List</h2>
-		<form name="smartsheetform" id="smartsheetform" action="#"
-			method="GET">
-			<select name="sheetname" id="sheetname">
-				<c:forEach items="${sheetsList}" var="item">
-					<option value="${item.id}">${item.name}</option>
-				</c:forEach>
-			</select>
-		</form>
+	<h2>Sheet List</h2>
+	<form name="smartsheetform" id="smartsheetform" action="#"
+		method="GET">
+		<select name="sheetname" id="sheetname">
+			<c:forEach items="${sheetsList}" var="item">
+				<option value="${item.id}">${item.name}</option>
+			</c:forEach>
+		</select>
+	</form>
 
 
 	</div>

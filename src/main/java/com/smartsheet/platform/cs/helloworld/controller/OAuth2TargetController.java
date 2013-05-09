@@ -9,10 +9,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
-import com.smartsheet.platform.cs.helloworld.api.SmartsheetException;
 import com.smartsheet.platform.cs.helloworld.api.SmartsheetAPI;
+import com.smartsheet.platform.cs.helloworld.api.SmartsheetException;
 import com.smartsheet.platform.cs.helloworld.model.AccessToken;
 import com.smartsheet.platform.cs.helloworld.security.SecurityUtil;
 

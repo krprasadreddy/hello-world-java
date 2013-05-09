@@ -28,7 +28,7 @@ public class HomeController {
 	public String home(Model model) throws SmartsheetException {
 		List<Sheet> sheets = api.getSheetList();
 		model.addAttribute("sheetsList", sheets);
-		return "sheets";
+		return "home";
 
 	}
 }
