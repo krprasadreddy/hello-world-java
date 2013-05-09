@@ -3,6 +3,7 @@ package com.smartsheet.platform.cs.helloworld.api;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -48,10 +49,24 @@ public class SmartsheetRestTemplate extends RestTemplate {
 	ObjectMapper objectMapper;
 		
 	public SmartsheetRestTemplate() {
-		//Use the default eintercepter. Note that these can be overridden after construction.
-		setInterceptors(Arrays.asList(new ClientHttpRequestInterceptor[]{new TokenRefreshingRequestInterceptor()}));
+		//Use the default intercepter. Note that this cannot be overridden after construction.
+		//This interceptor is intrinsic to how this class must function, so we do not rely on Spring
+		//to provide it.
+		super.setInterceptors(Arrays.asList(new ClientHttpRequestInterceptor[]{new TokenRefreshingRequestInterceptor()}));
+		setErrorHandler(new ResponseErrorHandler() {
+			public boolean hasError(ClientHttpResponse response) throws IOException {
+				return false;
+			}
+			public void handleError(ClientHttpResponse response) throws IOException {
+			}
+		});
 	}
 
+	@Override
+	public void setInterceptors(List<ClientHttpRequestInterceptor> interceptors) {
+		//No-op.
+	}
+	
 	private class TokenRefreshingRequestInterceptor implements ClientHttpRequestInterceptor {
 
 		private static final String AUTHORIZATION_HEADER = "Authorization";
@@ -68,6 +83,7 @@ public class SmartsheetRestTemplate extends RestTemplate {
 			
 			ClientHttpResponse response = null;
 			response = execution.execute(request, body);
+			;
 			if (response.getRawStatusCode() != 200) {
 				error = objectMapper.readValue(response.getBody(), RestError.class);
 				logger.severe("************" + error.getMessage() + " " + error.getErrorCode());

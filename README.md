@@ -17,10 +17,10 @@ Then run it with:
 
 
 ## Coding Guidelines
-* Adhere to the style of original, including naming conventions for classes and packages, variables, etc; 
+* Adhere to the style of the original code, including naming conventions for classes and packages, variables, etc; 
 * Use good object-oriented designs. 
     *  Follow the MVC pattern laid out.
-    *  Use appropriate separation of concerns for services, util classes, etc.
+    *  Use appropriate separation of concerns for services, API calls, util classes, etc.
 * This project is Spring enabled. Use dependency injection as appropriate. 
 * Provide descriptive comments as necessary. Use Javadocs style comments where appropriate.
 * Log as needed. The project currently uses java.util.logging to standard out. This is adequate for now.

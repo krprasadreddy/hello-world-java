@@ -63,13 +63,14 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 			restTemplate.setAuthenticated(false);
 			restTemplate.setDoAutoRefresh(false);
 			// Send the request
-			AccessToken accessToken = restTemplate.postForObject(SmartsheetProperties.TOKEN_URL, map, AccessToken.class);
+			AccessToken accessToken = restTemplate.postForObject(SmartsheetProperties.getTokenUrl(), map, AccessToken.class);
 			if (accessToken == null) {
 				throw new SmartsheetException(restTemplate.getError().getMessage());
 			} else {
 				accessToken.setId(UUID.randomUUID().toString().replace("-", ""));
 				accessToken.setExpires(new Date(System.currentTimeMillis() + (accessToken.getExpiresIn() * 1000)));
 				accessToken.setProvider(SMARTSHEET_PROVIDER);
+				//Would prefer not to have a DB call here, but leaving it for simplicity's sake.
 				tokenService.saveToken(accessToken);
 				return accessToken;
 			}
@@ -103,11 +104,12 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 			// Send the request
 			restTemplate.setAuthenticated(false);
 			restTemplate.setDoAutoRefresh(false);
-			AccessToken newAccessToken = restTemplate.postForObject(SmartsheetProperties.TOKEN_URL, map, AccessToken.class);
+			AccessToken newAccessToken = restTemplate.postForObject(SmartsheetProperties.getTokenUrl(), map, AccessToken.class);
 			accessToken.setToken(newAccessToken.getToken());
 			accessToken.setRefreshToken(newAccessToken.getRefreshToken());
 			accessToken.setExpiresIn(newAccessToken.getExpiresIn());
 			accessToken.setProvider(SMARTSHEET_PROVIDER);
+			//Again, would prefer not to have a DB call here, but leaving it for simplicity's sake.
 			tokenService.saveToken(accessToken);
 			tokenResolver.setToken(accessToken);
 			return accessToken;
@@ -125,10 +127,7 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 	 * @see com.smartsheet.platform.cs.helloworld.api.SmartsheetAPI#getSheetList()
 	 */
 	public List<Sheet> getSheetList() throws SmartsheetException {
-		List<Sheet> sheets = restTemplate.getForObject(SmartsheetProperties.SHEETS_URL, Sheet.SheetList.class);
-		if (sheets == null) {
-			throw new SmartsheetException(restTemplate.getError().getMessage());
-		}
+		List<Sheet> sheets = restTemplate.getForObject(SmartsheetProperties.getSheetsUrl(), Sheet.SheetList.class);
 		return sheets;
 	}
 

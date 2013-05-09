@@ -24,7 +24,7 @@ public class AuthenticationController {
 	public String login(HttpServletRequest request) {
 		String state = UUID.randomUUID().toString();
 		StringBuilder builder = new StringBuilder("redirect:");
-		builder.append(SmartsheetProperties.AUTHORIZE_URL);
+		builder.append(SmartsheetProperties.getAuthorizeUrl());
 		builder.append("?response_type=code&client_id=").append(SmartsheetProperties.getClientId());
 		builder.append("&redirect_uri=").append(SmartsheetProperties.getRedirectURI());
 		builder.append("&scope=READ_SHEETS&state=").append(state);
