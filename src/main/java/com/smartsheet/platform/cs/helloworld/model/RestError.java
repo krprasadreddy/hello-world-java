@@ -9,7 +9,7 @@ public class RestError {
 
 	String error;
 	String message;
-	String errorCode;
+	int errorCode;
 	
 	public String getError() {
 		return error;
@@ -23,10 +23,10 @@ public class RestError {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	public String getErrorCode() {
+	public int getErrorCode() {
 		return errorCode;
 	}
-	public void setErrorCode(String errorCode) {
+	public void setErrorCode(int errorCode) {
 		this.errorCode = errorCode;
 	}
 

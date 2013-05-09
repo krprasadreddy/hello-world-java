@@ -24,6 +24,7 @@ import org.springframework.util.MultiValueMap;
 
 import com.smartsheet.platform.cs.helloworld.model.AccessToken;
 import com.smartsheet.platform.cs.helloworld.model.Sheet;
+import com.smartsheet.platform.cs.helloworld.service.AccessTokenResolver;
 import com.smartsheet.platform.cs.helloworld.service.AccessTokenService;
 
 @Service
@@ -38,10 +39,13 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 	@Autowired 
 	AccessTokenService tokenService;
 	
+	@Autowired
+	AccessTokenResolver tokenResolver;
+	
 	/* (non-Javadoc)
 	 * @see com.smartsheet.platform.cs.helloworld.api.SmartsheetAPI#getAccessToken(java.lang.String)
 	 */
-	public AccessToken getAccessToken(String code) throws ApiException {
+	public AccessToken getAccessToken(String code) throws SmartsheetException {
 
 		try {
 			String doHash = SmartsheetProperties.getClientSecret() + "|" + code;
@@ -61,7 +65,7 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 			// Send the request
 			AccessToken accessToken = restTemplate.postForObject(SmartsheetProperties.TOKEN_URL, map, AccessToken.class);
 			if (accessToken == null) {
-				throw new ApiException(restTemplate.getError().getMessage());
+				throw new SmartsheetException(restTemplate.getError().getMessage());
 			} else {
 				accessToken.setId(UUID.randomUUID().toString().replace("-", ""));
 				accessToken.setExpires(new Date(System.currentTimeMillis() + (accessToken.getExpiresIn() * 1000)));
@@ -80,7 +84,7 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 	/* (non-Javadoc)
 	 * @see com.smartsheet.platform.cs.helloworld.api.SmartsheetAPI#refreshAccessToken(com.smartsheet.platform.cs.helloworld.model.AccessToken)
 	 */
-	public AccessToken refreshAccessToken(AccessToken accessToken) throws ApiException {
+	public AccessToken refreshAccessToken(AccessToken accessToken) {
 
 		try {
 
@@ -100,16 +104,13 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 			restTemplate.setAuthenticated(false);
 			restTemplate.setDoAutoRefresh(false);
 			AccessToken newAccessToken = restTemplate.postForObject(SmartsheetProperties.TOKEN_URL, map, AccessToken.class);
-			if (newAccessToken == null) {
-				throw new ApiException("Unable to refresh token.");
-			} else {
-				accessToken.setToken(newAccessToken.getToken());
-				accessToken.setRefreshToken(newAccessToken.getRefreshToken());
-				accessToken.setExpiresIn(newAccessToken.getExpiresIn());
-				accessToken.setProvider(SMARTSHEET_PROVIDER);
-				tokenService.saveToken(accessToken);
-				return accessToken;
-			}
+			accessToken.setToken(newAccessToken.getToken());
+			accessToken.setRefreshToken(newAccessToken.getRefreshToken());
+			accessToken.setExpiresIn(newAccessToken.getExpiresIn());
+			accessToken.setProvider(SMARTSHEET_PROVIDER);
+			tokenService.saveToken(accessToken);
+			tokenResolver.setToken(accessToken);
+			return accessToken;
 		} catch (IOException ex) {
 			//Only happens if the md.digest fails. Probably won't. 
 			throw new RuntimeException(ex.getMessage());
@@ -123,10 +124,10 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 	/* (non-Javadoc)
 	 * @see com.smartsheet.platform.cs.helloworld.api.SmartsheetAPI#getSheetList()
 	 */
-	public List<Sheet> getSheetList() throws ApiException {
+	public List<Sheet> getSheetList() throws SmartsheetException {
 		List<Sheet> sheets = restTemplate.getForObject(SmartsheetProperties.SHEETS_URL, Sheet.SheetList.class);
 		if (sheets == null) {
-			throw new ApiException(restTemplate.getError().getMessage());
+			throw new SmartsheetException(restTemplate.getError().getMessage());
 		}
 		return sheets;
 	}

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.smartsheet.platform.cs.helloworld.api.ApiException;
+import com.smartsheet.platform.cs.helloworld.api.SmartsheetException;
 import com.smartsheet.platform.cs.helloworld.api.SmartsheetAPI;
 import com.smartsheet.platform.cs.helloworld.model.AccessToken;
 import com.smartsheet.platform.cs.helloworld.security.SecurityUtil;
@@ -35,7 +35,7 @@ public class OAuth2TargetController {
 	 * @return
 	 */
 	@RequestMapping("/target")
-	public String target(HttpServletRequest request, HttpServletResponse response) throws ApiException {
+	public String target(HttpServletRequest request, HttpServletResponse response) throws SmartsheetException {
 		// Extract out the data
 		String code = request.getParameter("code");
 		String state = request.getParameter("state");
@@ -46,11 +46,11 @@ public class OAuth2TargetController {
 		// Retrieve token from the database if exists
 		if (error != null) {
 			logger.severe("Error: " + error);
-			throw new ApiException(error);
+			throw new SmartsheetException(error);
 		} else if (expectedState == null || state == null ||  !expectedState.equals(state)) {
 			logger.info("State mismatch: expected:" + expectedState + " but found: " + state);
 			//The provided state did not match what we have in the session:
-			throw new ApiException("Unaccptable state found. Please try again.");
+			throw new SmartsheetException("Unaccptable state found. Please try again.");
 		} else {
 			logger.info("Success");
 			AccessToken accessToken = api.getAccessToken(code);

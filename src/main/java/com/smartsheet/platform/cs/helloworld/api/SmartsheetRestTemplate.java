@@ -9,7 +9,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
@@ -49,51 +48,43 @@ public class SmartsheetRestTemplate extends RestTemplate {
 	ObjectMapper objectMapper;
 		
 	public SmartsheetRestTemplate() {
-		//Use the default error handler and intercepter. Note that these can be overridden after construction.
-		setErrorHandler(new TokenRefreshResponseErrorHandler());
-		setInterceptors(Arrays.asList(new ClientHttpRequestInterceptor[]{new AccessTokenRequestInterceptor()}));
-	}
-	
-	private class TokenRefreshResponseErrorHandler implements ResponseErrorHandler {
-		@Override
-		public void handleError(ClientHttpResponse resp) throws IOException {
-			logger.severe("Error found: " + resp.getBody());
-			error = objectMapper.readValue(resp.getBody(), RestError.class);
-		}
-		@Override
-		public boolean hasError(ClientHttpResponse resp) throws IOException {
-			return resp.getStatusCode() != HttpStatus.OK;
-		}
-		
+		//Use the default eintercepter. Note that these can be overridden after construction.
+		setInterceptors(Arrays.asList(new ClientHttpRequestInterceptor[]{new TokenRefreshingRequestInterceptor()}));
 	}
 
-	private class AccessTokenRequestInterceptor implements ClientHttpRequestInterceptor {
+	private class TokenRefreshingRequestInterceptor implements ClientHttpRequestInterceptor {
+
+		private static final String AUTHORIZATION_HEADER = "Authorization";
 
 		@Override
 		public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
+			System.out.println("Made it here.");
 			if (isAuthenticated) {
 				if (accessTokenResolver.getToken().getExpires().before(new Date())) {
-					try {
-						ssApi.refreshAccessToken(accessTokenResolver.getToken());
-					} catch (ApiException e) {
-						throw new IOException(e.getMessage(), e);
-					}
+					ssApi.refreshAccessToken(accessTokenResolver.getToken());
 				}
-				request.getHeaders().add("Authorization", "Bearer " + accessTokenResolver.getToken().getToken());
+				request.getHeaders().add(AUTHORIZATION_HEADER, "Bearer " + accessTokenResolver.getToken().getToken());
 			}
 			
-			ClientHttpResponse response = execution.execute(request, body);
-			
-			if (doAutoRefresh && response.getStatusCode() == HttpStatus.FORBIDDEN) {
-				//Token has expired, refresh the Access Token.
-				try {
+			ClientHttpResponse response = null;
+			response = execution.execute(request, body);
+			if (response.getRawStatusCode() != 200) {
+				error = objectMapper.readValue(response.getBody(), RestError.class);
+				logger.severe("************" + error.getMessage() + " " + error.getErrorCode());
+				if (doAutoRefresh && error.getErrorCode() == 1003) {
+					//Token has expired, refresh the Access Token.
+					logger.warning("refreshing token:");
 					ssApi.refreshAccessToken(accessTokenResolver.getToken());
-				} catch (ApiException e) {
-					throw new IOException(e.getMessage(), e);
+					request.getHeaders().remove(AUTHORIZATION_HEADER);
+					request.getHeaders().add(AUTHORIZATION_HEADER, "Bearer " + accessTokenResolver.getToken().getToken());
+					response = execution.execute(request, body); 
+					if (response.getRawStatusCode() != 200) {
+						error = objectMapper.readValue(response.getBody(), RestError.class);
+						throw new ApiException(error);
+					}
+				} else {
+					throw new ApiException(error);
 				}
-				request.getHeaders().remove("Authorization");
-				request.getHeaders().add("Authorization", "Bearer " + accessTokenResolver.getToken());
-				response = execution.execute(request, body);
 			}
 			return response;
 		}

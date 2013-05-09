@@ -21,25 +21,25 @@ public interface SmartsheetAPI {
 	 * @throws Exception
 	 */
 	
-	public AccessToken getAccessToken(String code) throws ApiException;
+	public AccessToken getAccessToken(String code) throws SmartsheetException;
 	
 	/**
 	 * Method to refresh the Access Code. The refreshed {@link AccessToken} is saved to the database.
 	 * 
 	 * @param accessToken
 	 * @return
-	 * @throws ApiException
+	 * @throws SmartsheetException
 	 */
-	public AccessToken refreshAccessToken(AccessToken accessToken) throws ApiException;
+	public AccessToken refreshAccessToken(AccessToken accessToken);
 	
 	/**
 	 * Method to retrieve the Sheets for the user.
 	 * 
 	 * @param OAuthToken
 	 * @return
-	 * @throws ApiException 
+	 * @throws SmartsheetException 
 	 * @throws Exception
 	 */
-	public List<Sheet> getSheetList() throws ApiException;
+	public List<Sheet> getSheetList() throws SmartsheetException;
 
 }

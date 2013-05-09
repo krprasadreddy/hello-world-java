@@ -1,4 +1,5 @@
 <!doctype html>
+<%@page import="java.io.PrintWriter"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
@@ -26,10 +27,15 @@
 			<h1>Error Page</h1>
 			<p>Sorry! Something went wrong in the application. Reason :
 				${exception.message}</p>
-			<p style="display: none">
-				<c:forEach items="${exception.stackTrace}" var="element">
-					<c:out value="${element}" /><br/>
-				</c:forEach>
+			<pre style="display: none">
+				<%
+				Exception exception = (Exception) request.getAttribute("exception");
+				if (exception != null) {
+					exception.printStackTrace();
+					exception.printStackTrace(new PrintWriter(out));
+				}
+				%>
+			</pre>
 		</div>
 	</div>
 

@@ -1,22 +1,27 @@
 package com.smartsheet.platform.cs.helloworld.api;
 
-public class ApiException extends Exception {
+import com.smartsheet.platform.cs.helloworld.model.RestError;
+
+public class ApiException extends RuntimeException {
 	private static final long serialVersionUID = -3997258058907517538L;
+	RestError restError;
 	
 	public ApiException() {
 		super();
 	}
 
-	public ApiException(String message, Throwable cause) {
-		super(message, cause);
+	public ApiException(RestError restError, Throwable t) {
+		super(restError.getMessage(), t);
+		this.restError = restError;
 	}
 
-	public ApiException(String message) {
-		super(message);
+	public ApiException(RestError restError) {
+		super(restError.getMessage());
+		this.restError = restError;
 	}
 
-	public ApiException(Throwable cause) {
-		super(cause);
+	public RestError getRestError() {
+		return restError;
 	}
 	
 }

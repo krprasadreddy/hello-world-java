@@ -10,9 +10,12 @@ import java.util.Properties;
 
 public class SmartsheetProperties {
 
-	public static final String TOKEN_URL = "https://api.smartsheet.com/1.1/token";
-	public static final String SHEETS_URL = "https://api.smartsheet.com/1.1/sheets";
-	public static final String AUTHORIZE_URL = "https://www.smartsheet.com/b/authorize";
+	public static final String BASE_API_URL = "http://kyans.smartsheet.com:8088/dev2/rest/1.1";
+//	public static final String BASE_API_URL = "https://api.smartsheet.com/1.1";
+	public static final String TOKEN_URL = BASE_API_URL + "/token";
+	public static final String SHEETS_URL = BASE_API_URL + "/sheets";
+//	public static final String AUTHORIZE_URL = "https://www.smartsheet.com/b/authorize";
+	public static final String AUTHORIZE_URL = "http://kyans.smartsheet.com:8080/dev2/authorize";
 	
 	public static final String GRANT_TYPE_AUTHORIZATION = "authorization_code";
 	public static final String GRANT_TYPE_REFRESH = "refresh_token";
