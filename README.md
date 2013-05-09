@@ -5,7 +5,9 @@ This is a template for a 3rd-Party Smartsheet (www.smartsheet.com) web applicati
 
 ## Running the application locally
 
-First copy smartsheet.properties.sample -> smartsheet.properties and add your API key and secret.
+First copy smartsheet.properties.sample -> [USERNAME].smartsheet.properties, where [USERNAME] is the value returned by System.getProperty("user.name"), and add your API key and secret and redirect Url. 
+To deploy to Heroku, you must have a smartsheet.properties file present with your "production" configuration.
+
 Make sure you have a System property named DATABASE_URL configured to point to your local db (postgres)
 Then build with:
 
@@ -24,4 +26,3 @@ Then run it with:
 * This project is Spring enabled. Use dependency injection as appropriate. 
 * Provide descriptive comments as necessary. Use Javadocs style comments where appropriate.
 * Log as needed. The project currently uses java.util.logging to standard out. This is adequate for now.
-* Test your code, please.
