@@ -75,6 +75,7 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 			// Use the user's id (which is unique) as the token persistent id (and cookie value).
 			accessToken.setId(String.valueOf(userId));
 			accessToken.setExpires(new Date(System.currentTimeMillis() + (accessToken.getExpiresIn() * 1000)));
+			accessToken.setLastLogin(new Date());
 			accessToken.setProvider(SMARTSHEET_PROVIDER);
 			// Would prefer not to have a DB call here, but leaving it for simplicity's sake.
 			// Note if token record already exists, overwritten with new data.
