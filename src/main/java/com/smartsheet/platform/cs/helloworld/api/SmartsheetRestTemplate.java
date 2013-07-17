@@ -54,9 +54,11 @@ public class SmartsheetRestTemplate extends RestTemplate {
 		//to provide it.
 		super.setInterceptors(Arrays.asList(new ClientHttpRequestInterceptor[]{new TokenRefreshingRequestInterceptor()}));
 		setErrorHandler(new ResponseErrorHandler() {
+			@Override
 			public boolean hasError(ClientHttpResponse response) throws IOException {
 				return false;
 			}
+			@Override
 			public void handleError(ClientHttpResponse response) throws IOException {
 			}
 		});
@@ -96,10 +98,10 @@ public class SmartsheetRestTemplate extends RestTemplate {
 					response = execution.execute(request, body); 
 					if (response.getRawStatusCode() != 200) {
 						error = objectMapper.readValue(response.getBody(), RestError.class);
-						throw new ApiException(error);
+						throw new ApiException(response.getRawStatusCode(), error);
 					}
 				} else {
-					throw new ApiException(error);
+					throw new ApiException(response.getRawStatusCode(), error);
 				}
 			}
 			return response;
