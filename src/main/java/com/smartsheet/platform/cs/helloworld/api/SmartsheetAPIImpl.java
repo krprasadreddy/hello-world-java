@@ -124,7 +124,7 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 			map.add("grant_type", SmartsheetProperties.GRANT_TYPE_REFRESH);
 			map.add("refresh_token", accessToken.getRefreshToken());
 			
-			// Send the request
+			// Send the request.
 			restTemplate.setAuthenticated(false);
 			restTemplate.setDoAutoRefresh(false);
 			AccessToken newAccessToken = restTemplate.postForObject(SmartsheetProperties.getTokenUrl(), map, AccessToken.class);
@@ -151,8 +151,18 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 	 */
 	@Override
 	public List<Sheet> getSheetList() throws SmartsheetException {
-		List<Sheet> sheets = restTemplate.getForObject(SmartsheetProperties.getSheetsUrl(), Sheet.SheetList.class);
+		List<Sheet> sheets = rateLimitedRestApi().getForObject(SmartsheetProperties.getSheetsUrl(), Sheet.SheetList.class);
 		return sheets;
 	}
 
+	private RateLimitedRestApi rateLimitedRestApi() {
+		// Wrap the restTemplate in a RateLimitedRestApi which detects rate limit
+		// exceeded errors as ServiceUnavailableExceptions.
+		RateLimitedRestApi rateLimitedRestApi = new SmartsheetRateLimitedRestApi(restTemplate);
+
+		// Create a retrying version of the RateLimitedRestApi which waits and
+		// retries on ServiceUnavailableExceptions.
+		return SmartsheetRetryingRestApiFactory.createSmartsheetRetryingRestApi(
+			rateLimitedRestApi);
+	}
 }
