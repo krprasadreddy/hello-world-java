@@ -29,7 +29,7 @@ public class AccessTokenResolver {
 	
 	public AccessToken getToken() {
 		if (token == null) {
-			String tokenId = (String) request.getAttribute(SecurityUtil.TOKEN_KEY);
+			String tokenId = SecurityUtil.getTokenId(request);
 			if (tokenId == null) {
 				return null;
 			}
