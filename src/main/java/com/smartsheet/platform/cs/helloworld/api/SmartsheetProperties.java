@@ -13,6 +13,7 @@ public class SmartsheetProperties {
 	private static final Logger logger = Logger.getLogger(SmartsheetProperties.class.toString());
 	private static final String SMARTSHEET_PROPERTIES = "smartsheet.properties";
 	private static final String TOKEN_URL = "/token";
+	private static final String USER_ME_URL = "/user/me";
 	private static final String SHEETS_URL =  "/sheets";
 	
 	public static final String GRANT_TYPE_AUTHORIZATION = "authorization_code";
@@ -53,6 +54,12 @@ public class SmartsheetProperties {
 		initProps();
 		return baseUrl + TOKEN_URL;
 	}
+
+	public static String getUserMeUrl() {
+		initProps();
+		return baseUrl + USER_ME_URL;
+	}
+
 	public static String getSheetsUrl() {
 		initProps();
 		return baseUrl + SHEETS_URL;
