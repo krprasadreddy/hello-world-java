@@ -65,6 +65,9 @@
 		<p>
 			Re-worked and cleaned up by <a href="http://www.cloudspokes.com/members/kyanskeem">Kyan Skeem</a>
 		</p>
+		<p>
+			Further cleaned up by <a href="http://www.cloudspokes.com/members/wcheung">William Cheung</a>
+		</p>
 
 	</div>
 	<!-- /container -->
