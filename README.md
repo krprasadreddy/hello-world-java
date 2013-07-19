@@ -1,6 +1,6 @@
-# Spring MVC and Hibernate template application 
+# The Smartsheet Spring MVC and Hibernate template application
 
-This is a template for a 3rd-Party Smartsheet (www.smartsheet.com) web application that uses Spring MVC and Hibernate. Use this as baseline when starting new 3rd party webapps for the Cloudspokes challenges put on by Smartsheet.
+This is a template for a 3rd-Party [Smartsheet](http://www.smartsheet.com) web application that uses Spring MVC and Hibernate. Use this as baseline when starting new 3rd party webapps for the Cloudspokes challenges put on by Smartsheet.
 
 
 ## Running the application locally
@@ -8,15 +8,26 @@ This is a template for a 3rd-Party Smartsheet (www.smartsheet.com) web applicati
 First copy smartsheet.properties.sample -> [USERNAME].smartsheet.properties, where [USERNAME] is the value returned by System.getProperty("user.name"), and add your API key and secret and redirect Url. 
 To deploy to Heroku, you must have a smartsheet.properties file present with your "production" configuration.
 
-Make sure you have a System property named DATABASE_URL configured to point to your local db (postgres)
+Alternatively, you may configure the three properties more securely in system environment variables instead of in a properties file. For Heroku use these commands to do so:
+
+	$ heroku config:set smartsheet.client_id=xxx
+	$ heroku config:set smartsheet.client_secret=yyy
+	$ heroku config:set smartsheet.redirect_uri=http://zzz.herokuapp.com/target
+
+Whether locally or on Heroku, environment variables take precedence over any properties file.
+
+Finally make sure you have a System property named DATABASE_URL configured to point to your local db (postgres)
 Then build with:
 
-    $mvn clean install
+    $ mvn clean install
 
 Then run it with:
 
-    $java -jar target/dependency/jetty-runner.jar target/*.war
+    $ java -jar target/dependency/jetty-runner.jar target/*.war
 
+To build without running tests use:
+
+    $ mvn clean install -DskipTests
 
 ## Coding Guidelines
 * Adhere to the style of the original code, including naming conventions for classes and packages, variables, etc; 
