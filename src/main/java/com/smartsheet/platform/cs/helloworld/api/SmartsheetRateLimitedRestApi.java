@@ -5,11 +5,11 @@ package com.smartsheet.platform.cs.helloworld.api;
  */
 public class SmartsheetRateLimitedRestApi implements RateLimitedRestApi {
 
-    private final SmartsheetRestTemplate restTemplate;
+	private final SmartsheetRestTemplate restTemplate;
 
-    public SmartsheetRateLimitedRestApi(SmartsheetRestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
+	public SmartsheetRateLimitedRestApi(SmartsheetRestTemplate restTemplate) {
+		this.restTemplate = restTemplate;
+	}
 
 	@Override
 	public <T> T getForObject(String url, Class<T> responseType) throws ServiceUnavailableException {
@@ -21,15 +21,15 @@ public class SmartsheetRateLimitedRestApi implements RateLimitedRestApi {
 		}
 	}
 
-    @Override
-    public <T> T postForObject(String url, Object request, Class<T> responseType) throws ServiceUnavailableException {
+	@Override
+	public <T> T postForObject(String url, Object request, Class<T> responseType) throws ServiceUnavailableException {
 		try {
 			return restTemplate.postForObject(url, request, responseType);
 		
 		} catch (ApiException e) {
 			throw mapApiException(url, e);
 		}
-    }
+	}
 
 	/**
 	 * Maps an {@link ApiException} to a {@link ServiceUnavailableException} 

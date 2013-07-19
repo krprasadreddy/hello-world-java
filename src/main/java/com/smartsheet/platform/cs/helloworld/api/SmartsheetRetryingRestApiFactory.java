@@ -61,7 +61,7 @@ public class SmartsheetRetryingRestApiFactory {
 					else // cause unknown
 						throw e;
 				}
-			}
+			} // for
 
 			// exhausted retries, give up
 			throw finalException;
