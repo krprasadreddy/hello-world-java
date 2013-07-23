@@ -13,6 +13,7 @@ public class SmartsheetProperties {
 	private static final Logger logger = Logger.getLogger(SmartsheetProperties.class.toString());
 	private static final String SMARTSHEET_PROPERTIES = "smartsheet.properties";
 	private static final String TOKEN_URL = "/token";
+	private static final String USER_ME_URL = "/user/me";
 	private static final String SHEETS_URL =  "/sheets";
 	
 	public static final String GRANT_TYPE_AUTHORIZATION = "authorization_code";
@@ -21,9 +22,17 @@ public class SmartsheetProperties {
 	
 	private static final String BASE_API_URL = "base_api_url";
 	private static final String AUTHORIZE_URL = "authorize_url";
-	private static final String CLIENT_ID ="client_id";
-	private static final String CLIENT_SECRET ="client_secret";
-	private static final String REDIRECT_URI ="redirect_uri";
+	private static final String CLIENT_ID = "client_id";
+	private static final String CLIENT_SECRET = "client_secret";
+	private static final String REDIRECT_URI = "redirect_uri";
+
+	private static final String SMARTSHEET_PROPERTY_PREFIX = "smartsheet.";
+
+	// Use properties configured in environment variables if available.
+	// If not, only then use properties defined in the properties file.
+	private static final String envClientId = System.getenv(SMARTSHEET_PROPERTY_PREFIX + CLIENT_ID);
+	private static final String envClientSecret = System.getenv(SMARTSHEET_PROPERTY_PREFIX + CLIENT_SECRET);
+	private static final String envRedirectURI = System.getenv(SMARTSHEET_PROPERTY_PREFIX + REDIRECT_URI);
 	
 	private static String baseUrl;
 	private static String authorizeUrl;
@@ -32,14 +41,20 @@ public class SmartsheetProperties {
 	private static Properties props;
 	
 	public static String getClientId() {
+		if (envClientId != null)
+			return envClientId;
 		initProps();
 		return props.getProperty(CLIENT_ID);
 	}
 	public static String getClientSecret() {
+		if (envClientSecret != null)
+			return envClientSecret;
 		initProps();
 		return props.getProperty(CLIENT_SECRET);
 	}
 	public static String getRedirectURI() {
+		if (envRedirectURI != null)
+			return envRedirectURI;
 		initProps();
 		return props.getProperty(REDIRECT_URI);
 	}
@@ -53,12 +68,18 @@ public class SmartsheetProperties {
 		initProps();
 		return baseUrl + TOKEN_URL;
 	}
+
+	public static String getUserMeUrl() {
+		initProps();
+		return baseUrl + USER_ME_URL;
+	}
+
 	public static String getSheetsUrl() {
 		initProps();
 		return baseUrl + SHEETS_URL;
 	}
 	
-	private static void initProps() {
+	private static synchronized void initProps() {
 		if (props == null) {
 			String user = System.getProperty("user.name"); 
 			String filename = user + "." + SMARTSHEET_PROPERTIES;

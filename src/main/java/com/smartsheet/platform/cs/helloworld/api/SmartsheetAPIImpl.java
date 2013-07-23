@@ -12,24 +12,30 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 
 import com.smartsheet.platform.cs.helloworld.model.AccessToken;
 import com.smartsheet.platform.cs.helloworld.model.Sheet;
+import com.smartsheet.platform.cs.helloworld.model.User;
 import com.smartsheet.platform.cs.helloworld.service.AccessTokenResolver;
 import com.smartsheet.platform.cs.helloworld.service.AccessTokenService;
 
 @Service
 @Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)
 public class SmartsheetAPIImpl implements SmartsheetAPI {
+
+	private static final String AUTHORIZATION_HEADER = "Authorization";
 
 	private static final String SMARTSHEET_PROVIDER = "Smartsheet";
 
@@ -45,6 +51,7 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 	/* (non-Javadoc)
 	 * @see com.smartsheet.platform.cs.helloworld.api.SmartsheetAPI#getAccessToken(java.lang.String)
 	 */
+	@Override
 	public AccessToken getAccessToken(String code) throws SmartsheetException {
 
 		try {
@@ -62,12 +69,16 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 			map.add("code", code);
 			restTemplate.setAuthenticated(false);
 			restTemplate.setDoAutoRefresh(false);
-			// Send the request
+			// Send the request.
 			AccessToken accessToken = restTemplate.postForObject(SmartsheetProperties.getTokenUrl(), map, AccessToken.class);
-			accessToken.setId(UUID.randomUUID().toString().replace("-", ""));
+			long userId = getUserIdentity(accessToken.getToken());
+			// Use the user's id (which is unique) as the token persistent id (and cookie value).
+			accessToken.setId(String.valueOf(userId));
 			accessToken.setExpires(new Date(System.currentTimeMillis() + (accessToken.getExpiresIn() * 1000)));
+			accessToken.setLastLogin(new Date());
 			accessToken.setProvider(SMARTSHEET_PROVIDER);
-			//Would prefer not to have a DB call here, but leaving it for simplicity's sake.
+			// Would prefer not to have a DB call here, but leaving it for simplicity's sake.
+			// Note if token record already exists, overwritten with new data.
 			tokenService.saveToken(accessToken);
 			return accessToken;
 		} catch (NoSuchAlgorithmException e) {
@@ -77,10 +88,26 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 		}
 	}
 
+	private long getUserIdentity(String accessToken) throws SmartsheetException {
+		HttpHeaders headers = new HttpHeaders();
+		headers.add(AUTHORIZATION_HEADER, "Bearer " + accessToken);
+		HttpEntity<Void> request = new HttpEntity<Void>(headers);
+
+		try {
+			User user = restTemplate.exchange(
+				SmartsheetProperties.getUserMeUrl(), HttpMethod.GET, request, User.class).getBody();
+			return user.getId();
+
+		} catch (RestClientException e) {
+			throw new SmartsheetException(e);
+		}
+	}
+
 	
 	/* (non-Javadoc)
 	 * @see com.smartsheet.platform.cs.helloworld.api.SmartsheetAPI#refreshAccessToken(com.smartsheet.platform.cs.helloworld.model.AccessToken)
 	 */
+	@Override
 	public AccessToken refreshAccessToken(AccessToken accessToken) {
 
 		try {
@@ -97,7 +124,7 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 			map.add("grant_type", SmartsheetProperties.GRANT_TYPE_REFRESH);
 			map.add("refresh_token", accessToken.getRefreshToken());
 			
-			// Send the request
+			// Send the request.
 			restTemplate.setAuthenticated(false);
 			restTemplate.setDoAutoRefresh(false);
 			AccessToken newAccessToken = restTemplate.postForObject(SmartsheetProperties.getTokenUrl(), map, AccessToken.class);
@@ -122,9 +149,20 @@ public class SmartsheetAPIImpl implements SmartsheetAPI {
 	/* (non-Javadoc)
 	 * @see com.smartsheet.platform.cs.helloworld.api.SmartsheetAPI#getSheetList()
 	 */
+	@Override
 	public List<Sheet> getSheetList() throws SmartsheetException {
-		List<Sheet> sheets = restTemplate.getForObject(SmartsheetProperties.getSheetsUrl(), Sheet.SheetList.class);
+		List<Sheet> sheets = rateLimitedRestApi().getForObject(SmartsheetProperties.getSheetsUrl(), Sheet.SheetList.class);
 		return sheets;
 	}
 
+	private RateLimitedRestApi rateLimitedRestApi() {
+		// Wrap the restTemplate in a RateLimitedRestApi which detects rate limit
+		// exceeded errors as ServiceUnavailableExceptions.
+		RateLimitedRestApi rateLimitedRestApi = new SmartsheetRateLimitedRestApi(restTemplate);
+
+		// Create a retrying version of the RateLimitedRestApi which waits and
+		// retries on ServiceUnavailableExceptions.
+		return SmartsheetRetryingRestApiFactory.createSmartsheetRetryingRestApi(
+			rateLimitedRestApi);
+	}
 }

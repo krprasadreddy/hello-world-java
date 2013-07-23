@@ -18,25 +18,27 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class AccessToken {
 
 	@Id
-	String id;
+	private String id;
 	
 	@JsonProperty("access_token")
-	String token;
+	private String token;
 	
-	String provider;
+	private String provider;
 	
 	@JsonProperty("refresh_token")
-	String refreshToken;
+	private String refreshToken;
 	
 	@JsonProperty("expires_in")
 	@Transient
-	Long expiresIn;
-	
+	private Long expiresIn;
+
 	@JsonProperty("token_type")
 	@Transient
-	String tokenType;
+	private String tokenType;
+
+	private Date expires;
 	
-	Date expires;
+	private Date lastLogin;
 
 	public AccessToken() {
 
@@ -77,6 +79,15 @@ public class AccessToken {
 	public void updateExpires() {
 		setExpires(new Date(System.currentTimeMillis() + (expiresIn * 1000)));
 	}
+
+	public Date getLastLogin() {
+		return lastLogin;
+	}
+
+	public void setLastLogin(Date lastLogin) {
+		this.lastLogin = lastLogin;
+	}
+
 	public String getId() {
 		return id;
 	}
@@ -92,5 +103,4 @@ public class AccessToken {
 	public void setExpiresIn(Long expiresIn) {
 		this.expiresIn = expiresIn;
 	}
-
 }

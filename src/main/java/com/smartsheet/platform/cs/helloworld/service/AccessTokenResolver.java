@@ -3,6 +3,7 @@ package com.smartsheet.platform.cs.helloworld.service;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.smartsheet.platform.cs.helloworld.model.AccessToken;
@@ -15,19 +16,20 @@ import com.smartsheet.platform.cs.helloworld.security.SecurityUtil;
  * 
  */
 @Component
+@Scope("request")
 public class AccessTokenResolver {
 	
 	@Autowired
-	HttpServletRequest request;
+	private HttpServletRequest request;
 	
 	@Autowired
-	AccessTokenService tokenService;
+	private AccessTokenService tokenService;
 	
-	AccessToken token;
+	private AccessToken token;
 	
 	public AccessToken getToken() {
 		if (token == null) {
-			String tokenId = (String) request.getAttribute(SecurityUtil.TOKEN_KEY);
+			String tokenId = SecurityUtil.getTokenId(request);
 			if (tokenId == null) {
 				return null;
 			}

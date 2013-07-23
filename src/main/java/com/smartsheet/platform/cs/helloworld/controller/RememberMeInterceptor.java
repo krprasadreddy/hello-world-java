@@ -49,7 +49,7 @@ public class RememberMeInterceptor implements HandlerInterceptor {
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals(SecurityUtil.TOKEN_COOKIE_NAME) && cookie.getValue() != null && cookie.getValue().length() > 0) {
 					tokenId = cookie.getValue();
-					request.setAttribute(SecurityUtil.TOKEN_KEY, tokenId);
+					SecurityUtil.setTokenId(request, tokenId);
 					break;
 				}
 			}
