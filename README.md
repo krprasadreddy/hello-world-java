@@ -37,3 +37,5 @@ To build without running tests use:
 * This project is Spring enabled. Use dependency injection as appropriate. 
 * Provide descriptive comments as necessary. Use Javadocs style comments where appropriate.
 * Log as needed. The project currently uses java.util.logging to standard out. This is adequate for now.
+
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/15fd9a3c920473cb26f6c8ad0ba41c90 "githalytics.com")](http://githalytics.com/smartsheet-platform/hello-world-java)
